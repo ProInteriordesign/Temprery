@@ -20,7 +20,8 @@
       width: 100%; padding: 12px; margin: 10px 0; border: none;
       border-radius: 8px; font-size: 16px;
     }
-    button { background: #ff4081; color: white; cursor: pointer; }
+    button { background: #ff4081; color: white; cursor: pointer; transition: all 0.3s; }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
     .google-btn { background: white; color: #3f51b5; margin-top: 10px; }
     .secondary-btn { background: transparent; border: 1px solid white; }
     .hidden { display: none; }
@@ -28,10 +29,29 @@
       display: grid; grid-template-columns: repeat(2, 1fr);
       gap: 10px; margin-top: 20px;
     }
-    .image-grid img { width: 100%; border-radius: 10px; cursor: pointer; }
+    .image-grid img { 
+      width: 100%; border-radius: 10px; cursor: pointer; 
+      aspect-ratio: 1/1; object-fit: cover; transition: transform 0.3s;
+    }
+    .image-grid img:hover { transform: scale(1.03); }
     .profile { text-align: center; margin-bottom: 20px; }
     .error { color: #ff5252; text-align: center; margin-top: 10px; }
     .form-footer { text-align: center; margin-top: 20px; }
+    a { color: #ff4081; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    #loading {
+      text-align: center; margin: 20px 0;
+    }
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px; height: 36px;
+      border-radius: 50%; border-left-color: #ff4081;
+      animation: spin 1s linear infinite; margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -74,6 +94,10 @@
     <h2>Generate Images</h2>
     <input type="text" id="prompt" placeholder="Enter your prompt here...">
     <button onclick="generateImages()">Generate</button>
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <p>Generating your images...</p>
+    </div>
     <div class="image-grid" id="images"></div>
   </div>
 
@@ -133,6 +157,14 @@
       document.getElementById('login-error').classList.add('hidden');
     }
 
+    // Show/hide loading indicator
+    function showLoading(show) {
+      document.getElementById('loading').classList.toggle('hidden', !show);
+      const generateBtn = document.querySelector('#main-container button[onclick="generateImages()"]');
+      generateBtn.disabled = show;
+      generateBtn.textContent = show ? "Generating..." : "Generate";
+    }
+
     // Error handling functions
     function showRegError(message) {
       const errorEl = document.getElementById('reg-error');
@@ -148,9 +180,9 @@
 
     // Registration function
     async function register() {
-      const name = document.getElementById('reg-name').value;
-      const email = document.getElementById('reg-email').value;
-      const password = document.getElementById('reg-password').value;
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
       
       if (!name || !email || !password) {
         showRegError('Please fill all fields');
@@ -183,8 +215,8 @@
 
     // Login function
     async function login() {
-      const email = document.getElementById('login-email').value;
-      const password = document.getElementById('login-password').value;
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
       
       if (!email || !password) {
         showLoginError('Please enter both email and password');
@@ -229,7 +261,7 @@
       });
     }
 
-    // Daily count functions (same as before)
+    // Daily count functions
     async function checkDailyCount() {
       try {
         const today = new Date().toISOString().slice(0, 10);
@@ -275,36 +307,105 @@
       }
     }
 
+    // Helper function to download images
+    function downloadImage(url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'genieart_image.jpg';
+      a.click();
+    }
+
+    // Helper function to try Lexica API
+    async function tryLexicaAPI(prompt) {
+      try {
+        const response = await fetch(`https://lexica.art/api/v1/search?q=${encodeURIComponent(prompt)}`);
+        if (!response.ok) throw new Error("Lexica API not available");
+        const data = await response.json();
+        return data.images || [];
+      } catch (error) {
+        console.warn("Lexica API failed, trying fallback", error);
+        return [];
+      }
+    }
+
+    // Fallback image generation method
+    async function tryFallbackAPI(prompt) {
+      try {
+        // Using placeholder images as fallback
+        const keywords = prompt.toLowerCase().split(' ');
+        const nature = keywords.some(k => ['nature', 'tree', 'flower', 'mountain'].includes(k));
+        const tech = keywords.some(k => ['tech', 'computer', 'code', 'programming'].includes(k));
+        const animal = keywords.some(k => ['animal', 'dog', 'cat', 'bird'].includes(k));
+        
+        if (nature) {
+          return [
+            { src: 'https://source.unsplash.com/random/300x300/?nature' },
+            { src: 'https://source.unsplash.com/random/300x300/?forest' },
+            { src: 'https://source.unsplash.com/random/300x300/?mountain' },
+            { src: 'https://source.unsplash.com/random/300x300/?waterfall' }
+          ];
+        } else if (tech) {
+          return [
+            { src: 'https://source.unsplash.com/random/300x300/?technology' },
+            { src: 'https://source.unsplash.com/random/300x300/?computer' },
+            { src: 'https://source.unsplash.com/random/300x300/?code' },
+            { src: 'https://source.unsplash.com/random/300x300/?programming' }
+          ];
+        } else if (animal) {
+          return [
+            { src: 'https://source.unsplash.com/random/300x300/?animal' },
+            { src: 'https://source.unsplash.com/random/300x300/?dog' },
+            { src: 'https://source.unsplash.com/random/300x300/?cat' },
+            { src: 'https://source.unsplash.com/random/300x300/?bird' }
+          ];
+        }
+        return [
+          { src: 'https://source.unsplash.com/random/300x300/?abstract' },
+          { src: 'https://source.unsplash.com/random/300x300/?colorful' },
+          { src: 'https://source.unsplash.com/random/300x300/?art' },
+          { src: 'https://source.unsplash.com/random/300x300/?design' }
+        ];
+      } catch (error) {
+        console.error("Fallback API failed", error);
+        return [];
+      }
+    }
+
+    // Main image generation function
     async function generateImages() {
       if (dailyCount >= 30) {
         alert("Daily limit reached (30 images)");
         return;
       }
       
-      const prompt = document.getElementById('prompt').value;
+      const prompt = document.getElementById('prompt').value.trim();
       if (!prompt) {
         alert("Please enter a prompt");
         return;
       }
 
+      showLoading(true);
+      
       try {
-        const response = await fetch(`https://lexica.art/api/v1/search?q=${encodeURIComponent(prompt)}`);
-        if (!response.ok) throw new Error("Network response was not ok");
+        // Try Lexica API first
+        let images = await tryLexicaAPI(prompt);
         
-        const data = await response.json();
+        // If Lexica fails, try fallback method
+        if (!images || images.length === 0) {
+          images = await tryFallbackAPI(prompt);
+        }
+
+        if (!images || images.length === 0) {
+          throw new Error("No images could be generated");
+        }
+
         const container = document.getElementById('images');
         container.innerHTML = '';
         
-        const results = data.images.slice(0, 4);
-        for (const img of results) {
+        for (const img of images.slice(0, 4)) {
           const el = document.createElement('img');
           el.src = img.src;
-          el.onclick = () => {
-            const a = document.createElement('a');
-            a.href = img.src;
-            a.download = 'genieart_image.jpg';
-            a.click();
-          };
+          el.onclick = () => downloadImage(img.src);
           container.appendChild(el);
           await saveHistory(img.src);
           dailyCount++;
@@ -313,8 +414,10 @@
         await updateCount(dailyCount);
         document.getElementById("daily-count").innerText = dailyCount;
       } catch (error) {
-        console.error("Error generating images:", error);
-        alert("Error fetching images. Please try again.");
+        console.error("Generation error:", error);
+        alert(`Error: ${error.message}. Please try a different prompt.`);
+      } finally {
+        showLoading(false);
       }
     }
   </script>
