@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GenieArt - Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { margin: 0; background: linear-gradient(120deg, #3f51b5, #5c6bc0); color: white; }
+    .container {
+      max-width: 600px; margin: 50px auto; padding: 30px;
+      background: rgba(255, 255, 255, 0.1); border-radius: 20px;
+      backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+    h2, h3 { text-align: center; margin-bottom: 20px; }
+    input, button {
+      width: 100%; padding: 12px; margin: 10px 0; border: none;
+      border-radius: 8px; font-size: 16px;
+    }
+    button { background: #ff4081; color: white; cursor: pointer; }
+    .google-btn { background: white; color: #3f51b5; margin-top: 10px; }
+    .hidden { display: none; }
+    .image-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px; margin-top: 20px;
+    }
+    .image-grid img { width: 100%; border-radius: 10px; cursor: pointer; }
+    .profile { text-align: center; margin-bottom: 20px; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="container" id="login-container">
+    <h2>Welcome to GenieArt</h2>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Sign Up</button>
+    <button class="google-btn" onclick="googleLogin()">Sign in with Google</button>
+  </div>
+
+  <div class="container hidden" id="main-container">
+    <div class="profile">
+      <h3 id="user-email"></h3>
+      <p>Images generated today: <span id="daily-count">0</span>/30</p>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <h2>Generate Images</h2>
+    <input type="text" id="prompt" placeholder="Enter your prompt here...">
+    <button onclick="generateImages()">Generate</button>
+    <div class="image-grid" id="images"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGOs-8rm27Pqzjh0yTqVZ6Jf3WCadbOys",
+      authDomain: "genieart-dfa9d.firebaseapp.com",
+      projectId: "genieart-dfa9d",
+      storageBucket: "genieart-dfa9d.appspot.com",
+      messagingSenderId: "1081496728874",
+      appId: "1:1081496728874:web:4b76dda956f53dfc541a53"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let dailyCount = 0;
+
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('login-container').classList.add('hidden');
+        document.getElementById('main-container').classList.remove('hidden');
+        document.getElementById('user-email').innerText = user.email;
+        await checkDailyCount();
+      } else {
+        currentUser = null;
+        document.getElementById('login-container').classList.remove('hidden');
+        document.getElementById('main-container').classList.add('hidden');
+      }
+    });
+
+    function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, password).catch(alert);
+    }
+
+    function signup() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.createUserWithEmailAndPassword(email, password).catch(alert);
+    }
+
+    function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(alert);
+    }
+
+    function logout() {
+      auth.signOut();
+    }
+
+    async function checkDailyCount() {
+      const today = new Date().toISOString().slice(0, 10);
+      const doc = await db.collection("users").doc(currentUser.uid).get();
+      const data = doc.data() || {};
+      if (data.date === today) {
+        dailyCount = data.count || 0;
+      } else {
+        dailyCount = 0;
+        await db.collection("users").doc(currentUser.uid).set({ date: today, count: 0 });
+      }
+      document.getElementById("daily-count").innerText = dailyCount;
+    }
+
+    async function updateCount(count) {
+      const today = new Date().toISOString().slice(0, 10);
+      await db.collection("users").doc(currentUser.uid).set({ date: today, count }, { merge: true });
+    }
+
+    async function saveHistory(imgUrl) {
+      const ref = db.collection("users").doc(currentUser.uid).collection("history");
+      await ref.add({ url: imgUrl, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+
+    function generateImages() {
+      if (dailyCount >= 30) {
+        alert("Daily limit reached (30 images)");
+        return;
+      }
+      const prompt = document.getElementById('prompt').value;
+      if (!prompt) return alert("Please enter a prompt");
+
+      fetch(`https://lexica.art/api/v1/search?q=${encodeURIComponent(prompt)}`)
+        .then(res => res.json())
+        .then(async data => {
+          const container = document.getElementById('images');
+          container.innerHTML = '';
+          const results = data.images.slice(0, 4);
+          for (const img of results) {
+            const el = document.createElement('img');
+            el.src = img.src;
+            el.onclick = () => {
+              const a = document.createElement('a');
+              a.href = img.src;
+              a.download = 'genieart_image.jpg';
+              a.click();
+            };
+            container.appendChild(el);
+            await saveHistory(img.src);
+            dailyCount++;
+          }
+          await updateCount(dailyCount);
+          document.getElementById("daily-count").innerText = dailyCount;
+        })
+        .catch(err => alert("Error fetching images"));
+    }
+  </script>
+</body>
+</html>
