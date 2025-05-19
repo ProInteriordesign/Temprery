@@ -3,295 +3,376 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GenieArt - AI Image Generator</title>
+  <title>GenieArt - Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    * { 
-      box-sizing: border-box; 
-      font-family: 'Poppins', sans-serif; 
-      margin: 0; 
-      padding: 0; 
-    }
-    body { 
-      margin: 0; 
-      background: linear-gradient(120deg, #3f51b5, #5c6bc0); 
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { margin: 0; background: linear-gradient(120deg, #3f51b5, #5c6bc0); color: white; }
     .container {
-      width: 100%;
-      max-width: 600px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-      padding: 30px;
+      max-width: 600px; margin: 50px auto; padding: 30px;
+      background: rgba(255, 255, 255, 0.1); border-radius: 20px;
+      backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     }
-    h1 { 
-      text-align: center; 
-      margin-bottom: 20px;
-      font-size: 2rem;
-    }
+    h2, h3 { text-align: center; margin-bottom: 20px; }
     input, button {
-      width: 100%;
-      padding: 12px 15px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      width: 100%; padding: 12px; margin: 10px 0; border: none;
+      border-radius: 8px; font-size: 16px;
     }
-    input {
-      background: rgba(255,255,255,0.9);
-      color: #333;
-    }
-    button { 
-      background: #ff4081;
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    button:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
+    button { background: #ff4081; color: white; cursor: pointer; transition: all 0.3s; }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
+    .google-btn { background: white; color: #3f51b5; margin-top: 10px; }
+    .secondary-btn { background: transparent; border: 1px solid white; }
+    .hidden { display: none; }
     .image-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-top: 20px;
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px; margin-top: 20px;
     }
-    .image-container {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      aspect-ratio: 1/1;
-      background: rgba(0,0,0,0.1);
+    .image-grid img { 
+      width: 100%; border-radius: 10px; cursor: pointer; 
+      aspect-ratio: 1/1; object-fit: cover; transition: transform 0.3s;
     }
-    .image-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s;
-    }
-    .image-container:hover img {
-      transform: scale(1.03);
-    }
-    .download-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .image-container:hover .download-btn {
-      opacity: 1;
-    }
+    .image-grid img:hover { transform: scale(1.03); }
+    .profile { text-align: center; margin-bottom: 20px; }
+    .error { color: #ff5252; text-align: center; margin-top: 10px; }
+    .form-footer { text-align: center; margin-top: 20px; }
+    a { color: #ff4081; text-decoration: none; }
+    a:hover { text-decoration: underline; }
     #loading {
-      text-align: center;
-      margin: 20px 0;
+      text-align: center; margin: 20px 0;
     }
     .spinner {
-      border: 4px solid rgba(255,255,255,0.1);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border-left-color: #ff4081;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px; height: 36px;
+      border-radius: 50%; border-left-color: #ff4081;
+      animation: spin 1s linear infinite; margin: 0 auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .error {
-      color: #ff5252;
-      text-align: center;
-      margin: 10px 0;
-      font-size: 14px;
-    }
-    .prompt-examples {
-      font-size: 14px;
-      color: rgba(255,255,255,0.8);
-      margin-top: 5px;
-      text-align: center;
-    }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>AI Image Generator</h1>
-    <input 
-      type="text" 
-      id="prompt" 
-      placeholder="Describe what you want to generate..." 
-      autocomplete="off"
-    >
-    <div class="prompt-examples">
-      Try: "sunset beach", "mountain landscape", "cyberpunk cityscape"
+  <!-- Registration Container -->
+  <div class="container" id="register-container">
+    <h2>Create Your GenieArt Account</h2>
+    <input type="text" id="reg-name" placeholder="Full Name">
+    <input type="email" id="reg-email" placeholder="Email">
+    <input type="password" id="reg-password" placeholder="Password (min 6 characters)">
+    <button onclick="register()">Register</button>
+    <div class="form-footer">
+      <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
     </div>
-    <button onclick="generateImages()" id="generate-btn">Generate 4 Images</button>
-    
+    <div id="reg-error" class="error hidden"></div>
+  </div>
+
+  <!-- Login Container -->
+  <div class="container hidden" id="login-container">
+    <h2>Welcome Back to GenieArt</h2>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button class="google-btn" onclick="googleLogin()">Sign in with Google</button>
+    <div class="form-footer">
+      <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
+    </div>
+    <div id="login-error" class="error hidden"></div>
+  </div>
+
+  <!-- Main App Container -->
+  <div class="container hidden" id="main-container">
+    <div class="profile">
+      <h3 id="user-email"></h3>
+      <p>Images generated today: <span id="daily-count">0</span>/30</p>
+      <button onclick="logout()">Logout</button>
+    </div>
+    <h2>Generate Images</h2>
+    <input type="text" id="prompt" placeholder="Enter your prompt here...">
+    <button onclick="generateImages()">Generate</button>
     <div id="loading" class="hidden">
       <div class="spinner"></div>
-      <p>Creating your images...</p>
+      <p>Generating your images...</p>
     </div>
-    
-    <div id="error-message" class="error hidden"></div>
-    
     <div class="image-grid" id="images"></div>
   </div>
 
   <script>
-    // Improved image generation that better matches prompts
-    async function generateImages() {
-      const prompt = document.getElementById('prompt').value.trim();
-      if (!prompt) {
-        showError("Please enter a description of what you want to generate");
-        return;
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGOs-8rm27Pqzjh0yTqVZ6Jf3WCadbOys",
+      authDomain: "genieart-dfa9d.firebaseapp.com",
+      projectId: "genieart-dfa9d",
+      storageBucket: "genieart-dfa9d.appspot.com",
+      messagingSenderId: "1081496728874",
+      appId: "1:1081496728874:web:4b76dda956f53dfc541a53"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser = null;
+    let dailyCount = 0;
+
+    // Show registration form initially
+    document.getElementById('register-container').classList.remove('hidden');
+    document.getElementById('login-container').classList.add('hidden');
+    document.getElementById('main-container').classList.add('hidden');
+
+    // Auth state handler
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('register-container').classList.add('hidden');
+        document.getElementById('login-container').classList.add('hidden');
+        document.getElementById('main-container').classList.remove('hidden');
+        document.getElementById('user-email').innerText = user.email;
+        document.getElementById('reg-error').classList.add('hidden');
+        document.getElementById('login-error').classList.add('hidden');
+        await checkDailyCount();
       }
+    });
 
-      showLoading(true);
-      clearError();
-      const container = document.getElementById('images');
-      container.innerHTML = '';
-      
-      try {
-        // Generate 4 image URLs that better match the prompt
-        const images = await generatePromptBasedImages(prompt);
-        
-        // Display images
-        for (const img of images) {
-          const imgContainer = document.createElement('div');
-          imgContainer.className = 'image-container';
-          
-          const imgEl = document.createElement('img');
-          imgEl.src = img.url;
-          imgEl.alt = prompt;
-          
-          // Show loading until image loads
-          imgEl.onload = () => {
-            imgContainer.style.background = 'none';
-          };
-          
-          const downloadBtn = document.createElement('button');
-          downloadBtn.className = 'download-btn';
-          downloadBtn.innerHTML = '↓';
-          downloadBtn.onclick = () => downloadImage(img.url, prompt);
-          
-          imgContainer.appendChild(imgEl);
-          imgContainer.appendChild(downloadBtn);
-          container.appendChild(imgContainer);
-        }
-
-      } catch (error) {
-        console.error("Generation error:", error);
-        showError("Failed to generate images. Please try again.");
-      } finally {
-        showLoading(false);
-      }
+    // Form navigation functions
+    function showLogin() {
+      document.getElementById('register-container').classList.add('hidden');
+      document.getElementById('login-container').classList.remove('hidden');
+      clearErrors();
     }
 
-    // Generates images that better match the prompt
-    async function generatePromptBasedImages(prompt) {
-      // Extract keywords from prompt
-      const keywords = getKeywordsFromPrompt(prompt);
-      const timestamp = Date.now();
-      
-      // Generate 4 different image URLs based on prompt keywords
-      return [
-        {
-          url: `https://source.unsplash.com/600x600/?${keywords.main},${keywords.secondary}&sig=${timestamp}1`
-        },
-        {
-          url: `https://source.unsplash.com/600x600/?${keywords.main},art&sig=${timestamp}2`
-        },
-        {
-          url: `https://source.unsplash.com/600x600/?${keywords.main},${keywords.style}&sig=${timestamp}3`
-        },
-        {
-          url: `https://source.unsplash.com/600x600/?${keywords.main},${keywords.secondary},${keywords.style}&sig=${timestamp}4`
-        }
-      ];
+    function showRegister() {
+      document.getElementById('login-container').classList.add('hidden');
+      document.getElementById('register-container').classList.remove('hidden');
+      clearErrors();
     }
 
-    // Extracts keywords from prompt for better image matching
-    function getKeywordsFromPrompt(prompt) {
-      // Common keywords mapping
-      const styles = ["digital art", "painting", "photorealistic", "abstract", "fantasy"];
-      const commonPairs = {
-        "sunset": "beach,ocean",
-        "mountain": "landscape,nature",
-        "portrait": "person,face",
-        "city": "urban,skyscraper",
-        "animal": "wildlife,nature"
-      };
-      
-      prompt = prompt.toLowerCase();
-      
-      // Check for common prompt patterns
-      for (const [key, value] of Object.entries(commonPairs)) {
-        if (prompt.includes(key)) {
-          const parts = value.split(',');
-          return {
-            main: parts[0],
-            secondary: parts[1],
-            style: styles[Math.floor(Math.random() * styles.length)]
-          };
-        }
-      }
-      
-      // Default keywords
-      const words = prompt.split(' ').slice(0, 3);
-      return {
-        main: words[0],
-        secondary: words.length > 1 ? words[1] : "art",
-        style: styles[Math.floor(Math.random() * styles.length)]
-      };
+    function clearErrors() {
+      document.getElementById('reg-error').classList.add('hidden');
+      document.getElementById('login-error').classList.add('hidden');
     }
 
-    function downloadImage(url, prompt) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ai-image-${prompt.substring(0, 20).replace(/\s+/g, '-')}-${Date.now()}.jpg`;
-      a.click();
-    }
-
+    // Show/hide loading indicator
     function showLoading(show) {
       document.getElementById('loading').classList.toggle('hidden', !show);
-      document.getElementById('generate-btn').disabled = show;
+      const generateBtn = document.querySelector('#main-container button[onclick="generateImages()"]');
+      generateBtn.disabled = show;
+      generateBtn.textContent = show ? "Generating..." : "Generate";
     }
 
-    function showError(message) {
-      const errorEl = document.getElementById('error-message');
+    // Error handling functions
+    function showRegError(message) {
+      const errorEl = document.getElementById('reg-error');
       errorEl.textContent = message;
       errorEl.classList.remove('hidden');
     }
 
-    function clearError() {
-      document.getElementById('error-message').classList.add('hidden');
+    function showLoginError(message) {
+      const errorEl = document.getElementById('login-error');
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+    }
+
+    // Registration function
+    async function register() {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+      
+      if (!name || !email || !password) {
+        showRegError('Please fill all fields');
+        return;
+      }
+
+      if (password.length < 6) {
+        showRegError('Password must be at least 6 characters');
+        return;
+      }
+
+      try {
+        // Create user
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        
+        // Save additional user data
+        await db.collection('users').doc(userCredential.user.uid).set({
+          name: name,
+          email: email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Automatically log them in after registration
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        console.error("Registration error:", error);
+        showRegError(`Registration failed: ${error.message}`);
+      }
+    }
+
+    // Login function
+    async function login() {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      
+      if (!email || !password) {
+        showLoginError('Please enter both email and password');
+        return;
+      }
+
+      try {
+        await auth.signInWithEmailAndPassword(email, password);
+      } catch (error) {
+        console.error("Login error:", error);
+        showLoginError(`Login failed: ${error.message}`);
+      }
+    }
+
+    // Google login function
+    async function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        const result = await auth.signInWithPopup(provider);
+        
+        // Check if this is a new user
+        if (result.additionalUserInfo.isNewUser) {
+          await db.collection('users').doc(result.user.uid).set({
+            name: result.user.displayName,
+            email: result.user.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      } catch (error) {
+        console.error("Google login error:", error);
+        showLoginError(`Google login failed: ${error.message}`);
+      }
+    }
+
+    // Logout function
+    function logout() {
+      auth.signOut().then(() => {
+        document.getElementById('register-container').classList.remove('hidden');
+        document.getElementById('main-container').classList.add('hidden');
+      }).catch(error => {
+        console.error("Logout error:", error);
+      });
+    }
+
+    // Daily count functions
+    async function checkDailyCount() {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        const doc = await db.collection("users").doc(currentUser.uid).get();
+        const data = doc.data() || {};
+        
+        if (data.date === today) {
+          dailyCount = data.count || 0;
+        } else {
+          dailyCount = 0;
+          await db.collection("users").doc(currentUser.uid).set({ 
+            date: today, 
+            count: 0 
+          });
+        }
+        document.getElementById("daily-count").innerText = dailyCount;
+      } catch (error) {
+        console.error("Error checking daily count:", error);
+      }
+    }
+
+    async function updateCount(count) {
+      try {
+        const today = new Date().toISOString().slice(0, 10);
+        await db.collection("users").doc(currentUser.uid).set({ 
+          date: today, 
+          count 
+        }, { merge: true });
+      } catch (error) {
+        console.error("Error updating count:", error);
+      }
+    }
+
+    async function saveHistory(imgUrl) {
+      try {
+        const ref = db.collection("users").doc(currentUser.uid).collection("history");
+        await ref.add({ 
+          url: imgUrl, 
+          timestamp: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+      } catch (error) {
+        console.error("Error saving history:", error);
+      }
+    }
+
+    // Helper function to download images
+    function downloadImage(url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'genieart_image.jpg';
+      a.click();
+    }
+
+    // Working image generation using Picsum Photos
+    async function generateImagesFromPrompt(prompt) {
+      // We'll use Picsum Photos as a reliable placeholder service
+      // In a real app, you'd use a proper AI image generation API
+      const baseUrl = 'https://picsum.photos/300/300';
+      
+      // Create 4 unique image URLs based on the prompt
+      const promptHash = Array.from(prompt).reduce(
+        (hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) | 0, 0
+      );
+      
+      return [
+        `${baseUrl}?random=${promptHash + 1}`,
+        `${baseUrl}?random=${promptHash + 2}`,
+        `${baseUrl}?random=${promptHash + 3}`,
+        `${baseUrl}?random=${promptHash + 4}`
+      ];
+    }
+
+    // Main image generation function
+    async function generateImages() {
+      if (dailyCount >= 30) {
+        alert("Daily limit reached (30 images)");
+        return;
+      }
+      
+      const prompt = document.getElementById('prompt').value.trim();
+      if (!prompt) {
+        alert("Please enter a prompt");
+        return;
+      }
+
+      showLoading(true);
+      
+      try {
+        // Generate image URLs
+        const imageUrls = await generateImagesFromPrompt(prompt);
+        
+        const container = document.getElementById('images');
+        container.innerHTML = '';
+        
+        for (const imgUrl of imageUrls) {
+          const el = document.createElement('img');
+          el.src = imgUrl;
+          el.onclick = () => downloadImage(imgUrl);
+          container.appendChild(el);
+          await saveHistory(imgUrl);
+          dailyCount++;
+        }
+        
+        await updateCount(dailyCount);
+        document.getElementById("daily-count").innerText = dailyCount;
+      } catch (error) {
+        console.error("Generation error:", error);
+        alert(`Error: ${error.message}. Please try a different prompt.`);
+      } finally {
+        showLoading(false);
+      }
     }
   </script>
 </body>
