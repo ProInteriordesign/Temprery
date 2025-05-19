@@ -26,11 +26,15 @@
             justify-content: center;
             margin-bottom: 20px;
             overflow: hidden;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px;
         }
         .generated-image {
-            max-width: 100%;
-            max-height: 500px;
+            max-width: 48%;
+            max-height: 250px;
             border-radius: 8px;
+            object-fit: cover;
         }
         .btn-generate {
             background-color: #6c5ce7;
@@ -43,6 +47,23 @@
         }
         .hidden {
             display: none;
+        }
+        .image-container {
+            position: relative;
+            width: 48%;
+        }
+        .download-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        .images-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
         }
     </style>
 </head>
@@ -122,13 +143,9 @@
                     <button id="generateBtn" class="btn btn-generate">Generate Image</button>
                 </div>
                 
-                <div class="image-display">
-                    <p id="placeholderText" class="text-muted">Your generated image will appear here</p>
-                    <img id="generatedImage" class="generated-image hidden" alt="Generated image">
-                </div>
-                
-                <div class="d-grid gap-2 mt-3 hidden" id="downloadSection">
-                    <button id="downloadBtn" class="btn btn-success">Download Image</button>
+                <div class="image-display" id="imagesContainer">
+                    <p id="placeholderText" class="text-muted">Your generated images will appear here</p>
+                    <div class="images-grid" id="imagesGrid"></div>
                 </div>
             </div>
         </div>
@@ -213,26 +230,48 @@
             generateBtn.textContent = 'Generating...';
             
             try {
-                // Using a placeholder service that accepts prompts
-                const placeholderColors = ['ff5733', '33ff57', '3357ff', 'f033ff', 'ff33f0'];
-                const randomColor = placeholderColors[Math.floor(Math.random() * placeholderColors.length)];
-                const imageUrl = `https://via.placeholder.com/800x600/${randomColor}/ffffff?text=${encodeURIComponent(prompt)}`;
-                
-                const imgElement = document.getElementById('generatedImage');
-                imgElement.src = imageUrl;
-                imgElement.classList.remove('hidden');
+                // Clear previous images
+                const imagesGrid = document.getElementById('imagesGrid');
+                imagesGrid.innerHTML = '';
                 document.getElementById('placeholderText').classList.add('hidden');
-                document.getElementById('downloadSection').classList.remove('hidden');
                 
-                // Set up download button
-                document.getElementById('downloadBtn').onclick = function() {
-                    const a = document.createElement('a');
-                    a.href = imageUrl;
-                    a.download = `ai-generated-${prompt.substring(0, 10)}.jpg`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                };
+                // Generate 4 different images
+                const colors = ['ff5733', '33ff57', '3357ff', 'f033ff'];
+                const styles = ['style1', 'style2', 'style3', 'style4'];
+                
+                colors.forEach((color, index) => {
+                    // Create image URL with different parameters for variety
+                    const imageUrl = `https://via.placeholder.com/400x300/${color}/ffffff?text=${encodeURIComponent(prompt)}&style=${styles[index]}`;
+                    
+                    // Create image container
+                    const imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-container';
+                    
+                    // Create image element
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imageUrl;
+                    imgElement.className = 'generated-image';
+                    imgElement.alt = `Generated image ${index + 1}`;
+                    
+                    // Create download button
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'btn btn-success download-btn';
+                    downloadBtn.textContent = 'Download';
+                    downloadBtn.onclick = function() {
+                        const a = document.createElement('a');
+                        a.href = imageUrl;
+                        a.download = `ai-generated-${prompt.substring(0, 10)}-${index+1}.jpg`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    };
+                    
+                    // Append elements
+                    imageContainer.appendChild(imgElement);
+                    imageContainer.appendChild(downloadBtn);
+                    imagesGrid.appendChild(imageContainer);
+                });
+                
             } catch (error) {
                 console.error('Error generating image:', error);
                 alert('Failed to generate image. Please try again.');
