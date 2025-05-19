@@ -315,52 +315,17 @@
       a.click();
     }
 
-    // Improved image generation with Unsplash API
+    // Simple image generation using Unsplash
     async function generateImagesFromPrompt(prompt) {
-      // Use Unsplash API for better quality and relevant images
-      const accessKey = 'YOUR_UNSPLASH_ACCESS_KEY'; // Replace with your Unsplash access key
-      const baseUrl = 'https://api.unsplash.com/photos/random';
+      // Using Unsplash's search API with the prompt
+      const baseUrl = 'https://source.unsplash.com/random/300x300/?';
       
       // Create 4 unique image URLs based on the prompt
-      const queries = [
-        `query=${encodeURIComponent(prompt)}&orientation=squarish`,
-        `query=${encodeURIComponent(prompt)}&orientation=squarish`,
-        `query=${encodeURIComponent(prompt)}&orientation=squarish`,
-        `query=${encodeURIComponent(prompt)}&orientation=squarish`
-      ];
-      
-      try {
-        // Try with Unsplash API first
-        const responses = await Promise.all(
-          queries.map(query => 
-            fetch(`${baseUrl}?${query}&client_id=${accessKey}`)
-              .then(response => response.json())
-              .then(data => data.urls.small)
-              .catch(() => null)
-          )
-        );
-        
-        // Filter out any failed requests
-        const validUrls = responses.filter(url => url !== null);
-        
-        // If we got at least one image from Unsplash, return them
-        if (validUrls.length > 0) {
-          // Fill any missing images with placeholder
-          while (validUrls.length < 4) {
-            validUrls.push(`https://source.unsplash.com/300x300/?${encodeURIComponent(prompt)},abstract`);
-          }
-          return validUrls.slice(0, 4);
-        }
-      } catch (error) {
-        console.log("Unsplash API failed, using fallback", error);
-      }
-      
-      // Fallback to basic placeholder if Unsplash fails
       return [
-        `https://source.unsplash.com/300x300/?${encodeURIComponent(prompt)},art`,
-        `https://source.unsplash.com/300x300/?${encodeURIComponent(prompt)},design`,
-        `https://source.unsplash.com/300x300/?${encodeURIComponent(prompt)},creative`,
-        `https://source.unsplash.com/300x300/?${encodeURIComponent(prompt)},illustration`
+        `${baseUrl}${encodeURIComponent(prompt)}&sig=1`,
+        `${baseUrl}${encodeURIComponent(prompt)}&sig=2`,
+        `${baseUrl}${encodeURIComponent(prompt)}&sig=3`,
+        `${baseUrl}${encodeURIComponent(prompt)}&sig=4`
       ];
     }
 
@@ -386,17 +351,15 @@
         const container = document.getElementById('images');
         container.innerHTML = '';
         
-        // Create image elements but don't wait for them to load
+        // Create image elements
         for (const imgUrl of imageUrls) {
           const el = document.createElement('img');
           el.src = imgUrl;
           el.alt = prompt;
           el.onclick = () => downloadImage(imgUrl);
-          el.onerror = function() {
-            // If image fails to load, replace with a placeholder
-            this.src = `https://source.unsplash.com/300x300/?${encodeURIComponent(prompt)},abstract`;
-          };
           container.appendChild(el);
+          
+          // Save to history and update count
           await saveHistory(imgUrl);
           dailyCount++;
         }
