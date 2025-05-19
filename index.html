@@ -8,7 +8,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    * { 
+      box-sizing: border-box; 
+      font-family: 'Poppins', sans-serif; 
+      margin: 0; 
+      padding: 0; 
+    }
     body { 
       margin: 0; 
       background: linear-gradient(120deg, #3f51b5, #5c6bc0); 
@@ -17,18 +22,22 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 20px;
     }
     .container {
-      width: 95%;
+      width: 100%;
       max-width: 600px;
-      margin: 20px auto;
-      padding: 30px;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       backdrop-filter: blur(10px);
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      padding: 30px;
     }
-    h1, h2, h3 { text-align: center; margin-bottom: 20px; }
+    h1 { 
+      text-align: center; 
+      margin-bottom: 20px;
+      font-size: 2rem;
+    }
     input, button {
       width: 100%;
       padding: 12px 15px;
@@ -36,6 +45,10 @@
       border: none;
       border-radius: 8px;
       font-size: 16px;
+    }
+    input {
+      background: rgba(255,255,255,0.9);
+      color: #333;
     }
     button { 
       background: #ff4081;
@@ -54,7 +67,6 @@
       transform: none;
       box-shadow: none;
     }
-    .hidden { display: none; }
     .image-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -66,13 +78,16 @@
       border-radius: 10px;
       overflow: hidden;
       aspect-ratio: 1/1;
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.1);
     }
     .image-container img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       transition: transform 0.3s;
+    }
+    .image-container:hover img {
+      transform: scale(1.03);
     }
     .download-btn {
       position: absolute;
@@ -88,6 +103,11 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .image-container:hover .download-btn {
+      opacity: 1;
     }
     #loading {
       text-align: center;
@@ -106,21 +126,37 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .error { color: #ff5252; text-align: center; margin: 10px 0; }
+    .error {
+      color: #ff5252;
+      text-align: center;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .prompt-examples {
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+      margin-top: 5px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <!-- Main App Container -->
-  <div class="container" id="main-container">
-    <h1>GenieArt Image Generator</h1>
-    <h3>Create AI-Generated Images</h3>
-    
-    <input type="text" id="prompt" placeholder="Describe what you want to generate..." autocomplete="off">
+  <div class="container">
+    <h1>AI Image Generator</h1>
+    <input 
+      type="text" 
+      id="prompt" 
+      placeholder="Describe what you want to generate..." 
+      autocomplete="off"
+    >
+    <div class="prompt-examples">
+      Try: "sunset beach", "mountain landscape", "cyberpunk cityscape"
+    </div>
     <button onclick="generateImages()" id="generate-btn">Generate 4 Images</button>
     
     <div id="loading" class="hidden">
       <div class="spinner"></div>
-      <p>Generating your images...</p>
+      <p>Creating your images...</p>
     </div>
     
     <div id="error-message" class="error hidden"></div>
@@ -129,7 +165,7 @@
   </div>
 
   <script>
-    // Image generation function - now using a reliable approach
+    // Improved image generation that better matches prompts
     async function generateImages() {
       const prompt = document.getElementById('prompt').value.trim();
       if (!prompt) {
@@ -143,26 +179,27 @@
       container.innerHTML = '';
       
       try {
-        // Generate 4 different image URLs based on prompt
-        const images = await generateImageUrls(prompt);
+        // Generate 4 image URLs that better match the prompt
+        const images = await generatePromptBasedImages(prompt);
         
-        if (!images || images.length === 0) {
-          throw new Error("Failed to generate images. Please try a different prompt.");
-        }
-
         // Display images
-        for (const imgUrl of images) {
+        for (const img of images) {
           const imgContainer = document.createElement('div');
           imgContainer.className = 'image-container';
           
           const imgEl = document.createElement('img');
-          imgEl.src = imgUrl;
+          imgEl.src = img.url;
           imgEl.alt = prompt;
+          
+          // Show loading until image loads
+          imgEl.onload = () => {
+            imgContainer.style.background = 'none';
+          };
           
           const downloadBtn = document.createElement('button');
           downloadBtn.className = 'download-btn';
           downloadBtn.innerHTML = '↓';
-          downloadBtn.onclick = () => downloadImage(imgUrl, prompt);
+          downloadBtn.onclick = () => downloadImage(img.url, prompt);
           
           imgContainer.appendChild(imgEl);
           imgContainer.appendChild(downloadBtn);
@@ -171,47 +208,77 @@
 
       } catch (error) {
         console.error("Generation error:", error);
-        showError(error.message);
+        showError("Failed to generate images. Please try again.");
       } finally {
         showLoading(false);
       }
     }
 
-    // Improved image generation using multiple reliable sources
-    async function generateImageUrls(prompt) {
-      // Create unique image URLs based on prompt
+    // Generates images that better match the prompt
+    async function generatePromptBasedImages(prompt) {
+      // Extract keywords from prompt
+      const keywords = getKeywordsFromPrompt(prompt);
       const timestamp = Date.now();
-      const promptHash = hashCode(prompt);
       
-      // Using multiple placeholder services to ensure we always get images
-      const services = [
-        () => `https://picsum.photos/600/600?random=${timestamp}1&grayscale&blur=2`,
-        () => `https://picsum.photos/600/600?random=${timestamp}2`,
-        () => `https://source.unsplash.com/random/600x600/?${encodeURIComponent(prompt)}&sig=${timestamp}3`,
-        () => `https://source.unsplash.com/random/600x600/?art,${encodeURIComponent(prompt)}&sig=${timestamp}4`
+      // Generate 4 different image URLs based on prompt keywords
+      return [
+        {
+          url: `https://source.unsplash.com/600x600/?${keywords.main},${keywords.secondary}&sig=${timestamp}1`
+        },
+        {
+          url: `https://source.unsplash.com/600x600/?${keywords.main},art&sig=${timestamp}2`
+        },
+        {
+          url: `https://source.unsplash.com/600x600/?${keywords.main},${keywords.style}&sig=${timestamp}3`
+        },
+        {
+          url: `https://source.unsplash.com/600x600/?${keywords.main},${keywords.secondary},${keywords.style}&sig=${timestamp}4`
+        }
       ];
+    }
+
+    // Extracts keywords from prompt for better image matching
+    function getKeywordsFromPrompt(prompt) {
+      // Common keywords mapping
+      const styles = ["digital art", "painting", "photorealistic", "abstract", "fantasy"];
+      const commonPairs = {
+        "sunset": "beach,ocean",
+        "mountain": "landscape,nature",
+        "portrait": "person,face",
+        "city": "urban,skyscraper",
+        "animal": "wildlife,nature"
+      };
       
-      return services.map(service => service());
-    }
-
-    // Helper function to create a simple hash
-    function hashCode(str) {
-      let hash = 0;
-      for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      prompt = prompt.toLowerCase();
+      
+      // Check for common prompt patterns
+      for (const [key, value] of Object.entries(commonPairs)) {
+        if (prompt.includes(key)) {
+          const parts = value.split(',');
+          return {
+            main: parts[0],
+            secondary: parts[1],
+            style: styles[Math.floor(Math.random() * styles.length)]
+          };
+        }
       }
-      return hash;
+      
+      // Default keywords
+      const words = prompt.split(' ').slice(0, 3);
+      return {
+        main: words[0],
+        secondary: words.length > 1 ? words[1] : "art",
+        style: styles[Math.floor(Math.random() * styles.length)]
+      };
     }
 
-    // Download image function
     function downloadImage(url, prompt) {
       const a = document.createElement('a');
       a.href = url;
-      a.download = `genieart-${prompt.substring(0, 20).replace(/\s+/g, '-')}-${Date.now()}.jpg`;
+      a.download = `ai-image-${prompt.substring(0, 20).replace(/\s+/g, '-')}-${Date.now()}.jpg`;
       a.click();
     }
 
-    // Loading state functions
     function showLoading(show) {
       document.getElementById('loading').classList.toggle('hidden', !show);
       document.getElementById('generate-btn').disabled = show;
@@ -226,11 +293,6 @@
     function clearError() {
       document.getElementById('error-message').classList.add('hidden');
     }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-      // Any initialization code can go here
-    });
   </script>
 </body>
 </html>
