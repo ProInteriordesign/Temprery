@@ -8,229 +8,86 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; margin: 0; padding: 0; }
-    body { 
-      margin: 0; 
-      background: linear-gradient(120deg, #3f51b5, #5c6bc0); 
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { margin: 0; background: linear-gradient(120deg, #3f51b5, #5c6bc0); color: white; }
     .container {
-      width: 95%;
-      max-width: 600px;
-      margin: 20px auto;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      max-width: 600px; margin: 50px auto; padding: 30px;
+      background: rgba(255, 255, 255, 0.1); border-radius: 20px;
+      backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     }
-    h1, h2, h3 { 
-      text-align: center; 
-      margin-bottom: 20px;
-    }
-    h1 { font-size: 2rem; }
+    h2, h3 { text-align: center; margin-bottom: 20px; }
     input, button {
-      width: 100%;
-      padding: 12px 15px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
+      width: 100%; padding: 12px; margin: 10px 0; border: none;
+      border-radius: 8px; font-size: 16px;
     }
-    input {
-      background: rgba(255,255,255,0.9);
-      color: #333;
-    }
-    button { 
-      background: #ff4081;
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    button:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-    .google-btn { 
-      background: white;
-      color: #3f51b5;
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .google-btn img {
-      width: 20px;
-      height: 20px;
-    }
-    .secondary-btn {
-      background: transparent;
-      border: 1px solid white;
-    }
+    button { background: #ff4081; color: white; cursor: pointer; }
+    .google-btn { background: white; color: #3f51b5; margin-top: 10px; }
     .hidden { display: none; }
     .image-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      margin-top: 20px;
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px; margin-top: 20px;
     }
-    .image-container {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      aspect-ratio: 1/1;
-    }
-    .image-container img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s;
-    }
-    .image-container:hover img {
-      transform: scale(1.05);
-    }
-    .download-btn {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .image-container:hover .download-btn {
-      opacity: 1;
-    }
-    .profile { 
-      text-align: center;
-      margin-bottom: 25px;
-    }
-    .error {
-      color: #ff5252;
-      text-align: center;
-      margin: 10px 0;
-      font-size: 14px;
-    }
-    .form-footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    a {
-      color: #ffcc00;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    #loading {
-      text-align: center;
-      margin: 20px 0;
-    }
+    .image-grid img { width: 100%; border-radius: 10px; cursor: pointer; }
+    .profile { text-align: center; margin-bottom: 20px; }
+    .error { color: #ff5252; text-align: center; margin-top: 10px; }
+    #loading { text-align: center; margin: 20px 0; }
     .spinner {
-      border: 4px solid rgba(255,255,255,0.1);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border-left-color: #ff4081;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px;
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 36px; height: 36px;
+      border-radius: 50%; border-left-color: #ff4081;
+      animation: spin 1s linear infinite; margin: 0 auto;
     }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-    .counter {
-      font-size: 14px;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .prompt-examples {
-      font-size: 14px;
-      color: rgba(255,255,255,0.8);
-      margin-top: 10px;
-      text-align: center;
-    }
   </style>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 </head>
 <body>
   <!-- Registration Container -->
   <div class="container" id="register-container">
-    <h1>Create Your Account</h1>
-    <input type="text" id="reg-name" placeholder="Full Name" required>
-    <input type="email" id="reg-email" placeholder="Email" required>
-    <input type="password" id="reg-password" placeholder="Password (min 6 characters)" required minlength="6">
+    <h2>Create Your Account</h2>
+    <input type="email" id="reg-email" placeholder="Email">
+    <input type="password" id="reg-password" placeholder="Password (min 6 characters)">
     <button onclick="register()">Register</button>
-    <div class="form-footer">
-      <p>Already have an account? <a href="#" onclick="showLogin()">Login here</a></p>
-    </div>
+    <p style="text-align: center; margin-top: 15px;">Already have an account? <a href="#" onclick="showLogin()" style="color: #ffcc00;">Login here</a></p>
     <div id="reg-error" class="error hidden"></div>
   </div>
 
   <!-- Login Container -->
   <div class="container hidden" id="login-container">
-    <h1>Welcome Back</h1>
-    <input type="email" id="login-email" placeholder="Email" required>
-    <input type="password" id="login-password" placeholder="Password" required>
+    <h2>Welcome Back</h2>
+    <input type="email" id="login-email" placeholder="Email">
+    <input type="password" id="login-password" placeholder="Password">
     <button onclick="login()">Login</button>
-    <button class="google-btn" onclick="googleLogin()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google logo">
-      Sign in with Google
-    </button>
-    <div class="form-footer">
-      <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
-    </div>
+    <button class="google-btn" onclick="googleLogin()">Sign in with Google</button>
+    <p style="text-align: center; margin-top: 15px;">Don't have an account? <a href="#" onclick="showRegister()" style="color: #ffcc00;">Register here</a></p>
     <div id="login-error" class="error hidden"></div>
   </div>
 
   <!-- Main App Container -->
   <div class="container hidden" id="main-container">
     <div class="profile">
-      <h2 id="user-greeting">Hello, User!</h2>
-      <div class="counter">
-        Images generated today: <span id="daily-count">0</span>/30
-      </div>
-      <button class="secondary-btn" onclick="logout()">Logout</button>
+      <h3 id="user-email"></h3>
+      <p>Images generated today: <span id="daily-count">0</span>/30</p>
+      <button onclick="logout()">Logout</button>
     </div>
-    
-    <h2>Generate AI Images</h2>
-    <input type="text" id="prompt" placeholder="Describe what you want to generate..." required>
-    <div class="prompt-examples">
-      Try: "sunset beach", "cyberpunk city", "majestic mountains"
-    </div>
-    <button onclick="generateImages()" id="generate-btn">Generate (4 Images)</button>
-    
+    <h2>Generate Images</h2>
+    <input type="text" id="prompt" placeholder="Enter your prompt here...">
+    <button onclick="generateImages()">Generate</button>
     <div id="loading" class="hidden">
       <div class="spinner"></div>
       <p>Generating your images...</p>
     </div>
-    
     <div class="image-grid" id="images"></div>
   </div>
 
   <script>
-    // Firebase Configuration
+    // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyBGOs-8rm27Pqzjh0yTqVZ6Jf3WCadbOys",
       authDomain: "genieart-dfa9d.firebaseapp.com",
@@ -241,61 +98,41 @@
     };
 
     // Initialize Firebase
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-    // App State
     let currentUser = null;
     let dailyCount = 0;
-    const MAX_DAILY_IMAGES = 30;
 
-    // DOM Elements
-    const registerContainer = document.getElementById('register-container');
-    const loginContainer = document.getElementById('login-container');
-    const mainContainer = document.getElementById('main-container');
-    const generateBtn = document.getElementById('generate-btn');
+    // Initialize auth state listener
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in
+        currentUser = user;
+        document.getElementById('login-container').classList.add('hidden');
+        document.getElementById('register-container').classList.add('hidden');
+        document.getElementById('main-container').classList.remove('hidden');
+        document.getElementById('user-email').textContent = user.email;
+        checkDailyCount();
+      } else {
+        // User is signed out
+        currentUser = null;
+        document.getElementById('main-container').classList.add('hidden');
+        document.getElementById('register-container').classList.remove('hidden');
+      }
+    });
 
-    // Initialize App
-    function initApp() {
-      // Show registration form by default
-      showRegister();
-      
-      // Set up auth state listener
-      auth.onAuthStateChanged(async user => {
-        if (user) {
-          // User is signed in
-          currentUser = user;
-          registerContainer.classList.add('hidden');
-          loginContainer.classList.add('hidden');
-          mainContainer.classList.remove('hidden');
-          
-          // Update UI with user info
-          document.getElementById('user-greeting').textContent = `Hello, ${user.displayName || user.email.split('@')[0]}!`;
-          
-          // Load user data
-          await checkDailyCount();
-        } else {
-          // User is signed out
-          currentUser = null;
-          mainContainer.classList.add('hidden');
-        }
-      });
-    }
-
-    // Form Navigation
+    // Form navigation
     function showLogin() {
-      registerContainer.classList.add('hidden');
-      loginContainer.classList.remove('hidden');
+      document.getElementById('register-container').classList.add('hidden');
+      document.getElementById('login-container').classList.remove('hidden');
       clearErrors();
     }
 
     function showRegister() {
-      loginContainer.classList.add('hidden');
-      registerContainer.classList.remove('hidden');
+      document.getElementById('login-container').classList.add('hidden');
+      document.getElementById('register-container').classList.remove('hidden');
       clearErrors();
     }
 
@@ -304,181 +141,138 @@
       document.getElementById('login-error').classList.add('hidden');
     }
 
-    // Loading State
-    function showLoading(show) {
-      document.getElementById('loading').classList.toggle('hidden', !show);
-      generateBtn.disabled = show;
-      generateBtn.textContent = show ? "Generating..." : "Generate (4 Images)";
-    }
-
-    // Error Handling
+    // Show error message
     function showError(elementId, message) {
       const errorEl = document.getElementById(elementId);
       errorEl.textContent = message;
       errorEl.classList.remove('hidden');
     }
 
-    // Authentication Functions
+    // Registration function
     async function register() {
-      const name = document.getElementById('reg-name').value.trim();
-      const email = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value.trim();
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
       
-      // Validation
-      if (!name || !email || !password) {
-        showError('reg-error', 'Please fill all fields');
+      if (!email || !password) {
+        showError('reg-error', 'Please enter email and password');
         return;
       }
+
       if (password.length < 6) {
         showError('reg-error', 'Password must be at least 6 characters');
         return;
       }
 
       try {
-        // Create user
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        
-        // Update user profile with name
-        await userCredential.user.updateProfile({
-          displayName: name
-        });
-        
-        // Save additional user data to Firestore
-        await db.collection('users').doc(userCredential.user.uid).set({
-          name: name,
-          email: email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
+        await auth.createUserWithEmailAndPassword(email, password);
+        // Registration successful, auth state listener will handle the rest
       } catch (error) {
         console.error("Registration error:", error);
-        showError('reg-error', `Registration failed: ${error.message}`);
+        showError('reg-error', error.message);
       }
     }
 
+    // Login function
     async function login() {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value.trim();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
       
       if (!email || !password) {
-        showError('login-error', 'Please enter both email and password');
+        showError('login-error', 'Please enter email and password');
         return;
       }
 
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        // Update last login time
-        if (auth.currentUser) {
-          await db.collection('users').doc(auth.currentUser.uid).update({
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
+        // Login successful, auth state listener will handle the rest
       } catch (error) {
         console.error("Login error:", error);
-        showError('login-error', `Login failed: ${error.message}`);
+        showError('login-error', error.message);
       }
     }
 
+    // Google login function
     async function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
       try {
-        const result = await auth.signInWithPopup(googleProvider);
-        
-        // Check if this is a new user
-        if (result.additionalUserInfo.isNewUser) {
-          await db.collection('users').doc(result.user.uid).set({
-            name: result.user.displayName,
-            email: result.user.email,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        } else {
-          // Update last login time for existing user
-          await db.collection('users').doc(result.user.uid).update({
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
+        await auth.signInWithPopup(provider);
+        // Login successful, auth state listener will handle the rest
       } catch (error) {
         console.error("Google login error:", error);
-        showError('login-error', `Google login failed: ${error.message}`);
+        showError('login-error', error.message);
       }
     }
 
-    async function logout() {
-      try {
-        await auth.signOut();
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
+    // Logout function
+    function logout() {
+      auth.signOut();
     }
 
-    // User Data Functions
+    // Check daily image count
     async function checkDailyCount() {
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const doc = await db.collection("users").doc(currentUser.uid).get();
-        
-        if (doc.exists) {
-          const data = doc.data();
-          if (data.date === today) {
-            dailyCount = data.count || 0;
-          } else {
-            dailyCount = 0;
-            await db.collection("users").doc(currentUser.uid).update({ 
-              date: today,
-              count: 0
-            });
-          }
+      if (!currentUser) return;
+      
+      const today = new Date().toISOString().split('T')[0];
+      const doc = await db.collection("users").doc(currentUser.uid).get();
+      
+      if (doc.exists) {
+        const data = doc.data();
+        if (data.date === today) {
+          dailyCount = data.count || 0;
         } else {
-          // Initialize user data if doesn't exist
-          await db.collection("users").doc(currentUser.uid).set({
+          dailyCount = 0;
+          await db.collection("users").doc(currentUser.uid).update({
             date: today,
             count: 0
           });
-          dailyCount = 0;
         }
-        
-        document.getElementById("daily-count").textContent = dailyCount;
-      } catch (error) {
-        console.error("Error checking daily count:", error);
-      }
-    }
-
-    async function updateCount(count) {
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        await db.collection("users").doc(currentUser.uid).update({ 
+      } else {
+        await db.collection("users").doc(currentUser.uid).set({
           date: today,
-          count
+          count: 0
         });
-      } catch (error) {
-        console.error("Error updating count:", error);
+        dailyCount = 0;
       }
+      
+      document.getElementById("daily-count").textContent = dailyCount;
     }
 
-    async function saveImageToHistory(imgUrl, prompt) {
-      try {
-        await db.collection("users").doc(currentUser.uid).collection("history").add({
-          url: imgUrl,
-          prompt: prompt,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } catch (error) {
-        console.error("Error saving image history:", error);
-      }
+    // Update image count
+    async function updateCount(count) {
+      if (!currentUser) return;
+      
+      const today = new Date().toISOString().split('T')[0];
+      await db.collection("users").doc(currentUser.uid).update({
+        date: today,
+        count: count
+      });
     }
 
-    // Image Generation Functions
+    // Save image to history
+    async function saveHistory(imgUrl) {
+      if (!currentUser) return;
+      
+      await db.collection("users").doc(currentUser.uid).collection("history").add({
+        url: imgUrl,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+
+    // Show/hide loading
+    function showLoading(show) {
+      document.getElementById('loading').classList.toggle('hidden', !show);
+    }
+
+    // Generate images
     async function generateImages() {
-      // Check daily limit
-      if (dailyCount >= MAX_DAILY_IMAGES) {
-        alert(`You've reached your daily limit of ${MAX_DAILY_IMAGES} images. Please come back tomorrow!`);
+      if (dailyCount >= 30) {
+        alert("Daily limit reached (30 images)");
         return;
       }
       
-      const prompt = document.getElementById('prompt').value.trim();
+      const prompt = document.getElementById('prompt').value;
       if (!prompt) {
-        alert("Please enter a description of what you want to generate");
+        alert("Please enter a prompt");
         return;
       }
 
@@ -487,79 +281,41 @@
       container.innerHTML = '';
       
       try {
-        // Generate 4 image URLs based on prompt
-        const images = await generateImageUrls(prompt);
+        // Generate 4 different image URLs based on prompt
+        const timestamp = Date.now();
+        const keywords = encodeURIComponent(prompt.toLowerCase().substring(0, 20));
         
-        if (!images || images.length === 0) {
-          throw new Error("Failed to generate images. Please try a different prompt.");
-        }
-
-        // Display images
-        for (const img of images) {
-          const imgContainer = document.createElement('div');
-          imgContainer.className = 'image-container';
-          
-          const imgEl = document.createElement('img');
-          imgEl.src = img.url;
-          imgEl.alt = prompt;
-          
-          const downloadBtn = document.createElement('button');
-          downloadBtn.className = 'download-btn';
-          downloadBtn.innerHTML = '↓';
-          downloadBtn.onclick = (e) => {
-            e.stopPropagation();
-            downloadImage(img.url, prompt);
+        const images = [
+          `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}1`,
+          `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}2`,
+          `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}3`,
+          `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}4`
+        ];
+        
+        for (const imgUrl of images) {
+          const img = document.createElement('img');
+          img.src = imgUrl;
+          img.onclick = () => {
+            const a = document.createElement('a');
+            a.href = imgUrl;
+            a.download = `genieart-${prompt.substring(0, 20)}-${timestamp}.jpg`;
+            a.click();
           };
+          container.appendChild(img);
           
-          imgContainer.appendChild(imgEl);
-          imgContainer.appendChild(downloadBtn);
-          container.appendChild(imgContainer);
-          
-          // Save to history and update count
-          await saveImageToHistory(img.url, prompt);
+          await saveHistory(imgUrl);
           dailyCount++;
-          document.getElementById("daily-count").textContent = dailyCount;
-          await updateCount(dailyCount);
         }
-
+        
+        await updateCount(dailyCount);
+        document.getElementById("daily-count").textContent = dailyCount;
       } catch (error) {
-        console.error("Generation error:", error);
-        alert(`Error: ${error.message}`);
+        console.error("Error generating images:", error);
+        alert("Error generating images. Please try again.");
       } finally {
         showLoading(false);
       }
     }
-
-    async function generateImageUrls(prompt) {
-      // In a real implementation, you would call an AI image generation API here
-      // For this demo, we'll use Unsplash as a placeholder
-      
-      try {
-        // Create unique URLs based on prompt and timestamp
-        const timestamp = Date.now();
-        const keywords = encodeURIComponent(prompt.toLowerCase().substring(0, 20));
-        
-        return [
-          { url: `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}1` },
-          { url: `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}2` },
-          { url: `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}3` },
-          { url: `https://source.unsplash.com/random/600x600/?${keywords}&sig=${timestamp}4` }
-        ];
-      } catch (error) {
-        console.error("Image generation error:", error);
-        return [];
-      }
-    }
-
-    function downloadImage(url, prompt) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `genieart-${prompt.substring(0, 20).replace(/\s+/g, '-')}-${Date.now()}.jpg`;
-      a.click();
-    }
-
-    // Initialize the app when DOM is loaded
-    document.addEventListener('DOMContentLoaded', initApp);
   </script>
 </body>
 </html>
